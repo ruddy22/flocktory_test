@@ -5,4 +5,5 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :jvm-opts ["--add-modules" "java.xml.bind"]
   :dependencies [[org.clojure/clojure "1.8.0"]
+                 [compojure "1.6.0"]
                  [http-kit "2.2.0"]])

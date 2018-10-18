@@ -1,18 +1,32 @@
 (ns flocktory.core
-  (:require [org.httpkit.server :refer [run-server]]))
+  (:require [org.httpkit.server :refer [run-server]]
+            [compojure.core :refer :all]
+            [compojure.route :as route]
+            [clojure.string :as s]
+            ))
 
-  (def hello-http "Hello http!!!")
+(defn index-route-handler
+  "index route handler"
+  []
+  "If you want to use this application, send request on `search` route.")
 
-(defn app
-  "test fn"
+(defn search-route-handler
+  "search route handler"
   [req]
-  {:status 200
-   :headers {"Content-Type" "text/html"}
-   :body hello-http})
+  (let [{:keys [query-string]} req]
+    {:status 200
+     :headers {"Content-Type" "text/html"} ;;"application/json"}
+     :body (-> query-string
+               (s/replace #"query=" "")
+               (s/split #"(&)")
+               str)
+     }))
 
-(comment
-  (app {})
-  )
+(defroutes app
+  (GET "/" [] #'index-route-handler)
+  (GET "/search" [req] #'search-route-handler)
+  (route/not-found "Route not found")
+  (route/resources "/"))
 
 (defonce server (atom nil))
 
