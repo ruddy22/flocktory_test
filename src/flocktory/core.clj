@@ -1,11 +1,12 @@
 (ns flocktory.core
-  (:require [org.httpkit.server :refer [run-server]]
+  (:require [org.httpkit.server :refer (run-server)]
             [compojure.core :refer :all]
             [compojure.route :as route]
             [clojure.string :as s]
             [com.climate.claypoole :as cp]
             [clojure.set :as set]
             [feedparser-clj.core :as rss]
+            [clojure.java.io :refer (as-url)]
             ))
 
 (defn index-route-handler
@@ -28,26 +29,15 @@
         links (map :link entries)]
     links))
 
-(comment
-  (subprocess "lisp")
-  )
-
 (def pool-size 10)
 
 (defn process
   "words processing"
   [words pool]
-  (apply set/union (cp/pmap pool subprocess words)))
-
-(comment
-  (let [pool (cp/threadpool 10)
-        ;; words ["lisp" "clojure" "scala" "haskell" "javascript" "clojurescript" "scalajs" "d3js" "purescript" "c++" "agda" "idris" "coq"]
-        words ["lisp"]
-        res (process words pool)]
-    (cp/shutdown pool)
-    res
-    )
-  )
+  (let [union (apply set/union (cp/pmap pool subprocess words))
+        urls (map as-url union)
+        domains (map #(.getHost %) urls)]
+    (frequencies domains)))
 
 (defn search-route-handler
   "search route handler"
@@ -70,7 +60,7 @@
 
 (defonce server (atom nil))
 
-(defn stop-server
+(defn- stop-server
   "stop running server"
   []
   (when-not (nil? @server)
@@ -81,7 +71,7 @@
   (stop-server)
   )
 
-(defn start-server
+(defn- start-server
   "start new server instance"
   []
   (let [serv (run-server #'app {:port 8080})]
