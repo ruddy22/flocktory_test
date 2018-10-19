@@ -11,7 +11,7 @@
   [query]
   (str "https://www.bing.com/search?q=" query "&format=rss&count=10"))
 
-(defn subprocess
+(defn process
   "subprocess for each word"
   [get-feed word]
   (let [entries (-> word
@@ -21,20 +21,23 @@
         links (map :link entries)]
     links))
 
-(defn process
+(defn data-processing
   "words processing"
-  [words pool get-feed]
-  (let [union (apply set/union
-                     (tp/do-in-thread pool (partial subprocess get-feed) words))
+  [query-string pool get-feed]
+  (let [words (-> query-string
+                  (s/replace #"query=" "")
+                  (s/split #"(&)"))
+        union (apply set/union
+                     (tp/do-in-thread pool (partial process get-feed) words))
         domains (map (comp (memfn getHost) as-url) union)
-        json (prettify (make-json (frequencies domains)))]
+        json (-> domains
+                 frequencies
+                 make-json
+                 prettify)]
     json
     ))
 
 (defn handle-data
   "handle data"
   [query-string pool get-feed]
-  (-> query-string
-      (s/replace #"query=" "")
-      (s/split #"(&)")
-      (process pool get-feed)))
+  (data-processing query-string pool get-feed))
