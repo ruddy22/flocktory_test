@@ -3,27 +3,67 @@
             [compojure.core :refer :all]
             [compojure.route :as route]
             [clojure.string :as s]
+            [com.climate.claypoole :as cp]
+            [clojure.set :as set]
+            [feedparser-clj.core :as rss]
             ))
 
 (defn index-route-handler
   "index route handler"
-  []
+  [req]
   "If you want to use this application, send request on `search` route.")
+
+(defn get-url
+  "get url"
+  [query]
+  (str "https://www.bing.com/search?q=" query "&format=rss&count=10"))
+
+(defn subprocess
+  "subprocess for each word"
+  [word]
+  (let [entries (-> word
+                    get-url
+                    rss/parse-feed ;; here is requesting data from Bing
+                    :entries)
+        links (map :link entries)]
+    links))
+
+(comment
+  (subprocess "lisp")
+  )
+
+(def pool-size 10)
+
+(defn process
+  "words processing"
+  [words pool]
+  (apply set/union (cp/pmap pool subprocess words)))
+
+(comment
+  (let [pool (cp/threadpool 10)
+        ;; words ["lisp" "clojure" "scala" "haskell" "javascript" "clojurescript" "scalajs" "d3js" "purescript" "c++" "agda" "idris" "coq"]
+        words ["lisp"]
+        res (process words pool)]
+    (cp/shutdown pool)
+    res
+    )
+  )
 
 (defn search-route-handler
   "search route handler"
   [req]
-  (let [{:keys [query-string]} req]
-    {:status 200
-     :headers {"Content-Type" "text/html"} ;;"application/json"}
-     :body (-> query-string
-               (s/replace #"query=" "")
-               (s/split #"(&)")
-               str)
-     }))
+  (let [{:keys [query-string]} req
+        pool (cp/threadpool pool-size)
+        res (-> query-string
+                (s/replace #"query=" "")
+                (s/split #"(&)")
+                (process pool))]
+    (cp/shutdown pool)
+    res
+    ))
 
 (defroutes app
-  (GET "/" [] #'index-route-handler)
+  (GET "/" [req] #'index-route-handler)
   (GET "/search" [req] #'search-route-handler)
   (route/not-found "Route not found")
   (route/resources "/"))
