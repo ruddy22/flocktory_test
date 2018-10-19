@@ -7,12 +7,16 @@
             [clojure.set :as set]
             [feedparser-clj.core :as rss]
             [clojure.java.io :refer (as-url)]
+            [clojure.data.json :as json]
             ))
 
 (defn index-route-handler
   "index route handler"
   [req]
-  "If you want to use this application, send request on `search` route.")
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body "<h1>If you want to use this application, send request on `search` route.</h1>"} ;; TODO: add description with example
+  )
 
 (defn get-url
   "get url"
@@ -24,6 +28,7 @@
   [word]
   (let [entries (-> word
                     get-url
+                    ;; TODO: add `rss/parse-feed` as fn param for tests
                     rss/parse-feed ;; here is requesting data from Bing
                     :entries)
         links (map :link entries)]
@@ -36,20 +41,35 @@
   [words pool]
   (let [union (apply set/union (cp/pmap pool subprocess words))
         urls (map as-url union)
-        domains (map #(.getHost %) urls)]
+        domains (map #(.getHost %) urls)] ;; TODO: use `memfn` insead of lambda-fn
     (frequencies domains)))
+
+(defn prettify-json
+  "indenting json on 1st level"
+  [json-data]
+  (-> json-data
+      (s/replace #"\{" "{\n\t")
+      (s/replace #"\}" "\n}\n")
+      (s/replace #"\," ",\n\t")
+      )
+  )
 
 (defn search-route-handler
   "search route handler"
   [req]
   (let [{:keys [query-string]} req
         pool (cp/threadpool pool-size)
-        res (-> query-string
-                (s/replace #"query=" "")
-                (s/split #"(&)")
-                (process pool))]
+        processed-data (-> query-string
+                           (s/replace #"query=" "")
+                           (s/split #"(&)")
+                           (process pool))
+        json-data (json/write-str processed-data)
+        pp-json (prettify-json json-data)
+        response {:status 200
+                  :headers {"Content-Type" "application/json"}
+                  :body pp-json}]
     (cp/shutdown pool)
-    res
+    response
     ))
 
 (defroutes app
@@ -67,10 +87,6 @@
     (@server :timeout 100)
     (reset! server nil)))
 
-(comment
-  (stop-server)
-  )
-
 (defn- start-server
   "start new server instance"
   []
@@ -79,6 +95,7 @@
 
 (comment
   (start-server)
+  (stop-server)
   )
 
 (defn -main
