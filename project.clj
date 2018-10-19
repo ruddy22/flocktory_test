@@ -9,4 +9,6 @@
                  [compojure "1.6.0"]
                  [http-kit "2.2.0"]
                  ;; use `claypoole` because -> https://www.youtube.com/watch?v=BzKjIk0vgzE
-                 [com.climate/claypoole "1.1.4"]])
+                 [com.climate/claypoole "1.1.4"]
+                 [org.clojars.scsibug/feedparser-clj "0.4.0" :exlusions [org.clojure/clojure]]b
+                 ])
