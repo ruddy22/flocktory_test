@@ -11,6 +11,19 @@
   [query]
   (str "https://www.bing.com/search?q=" query "&format=rss&count=10"))
 
+(defn process-urls
+  "string -> url -> sld"
+  [url-str]
+  (try
+    (let [host (-> url-str
+                   as-url
+                   (.getHost))
+          sld (take 2 (reverse (s/split host #"\.")))]
+      (s/join "." (reverse sld)))
+    (catch Exception e
+      (throw (Exception. "Unknown error")))
+  ))
+
 (defn process
   "subprocess for each word"
   [get-feed word]
@@ -29,7 +42,7 @@
                   (s/split #"(&)"))
         union (apply set/union
                      (tp/do-in-thread pool (partial process get-feed) words))
-        domains (map (comp (memfn getHost) as-url) union)
+        domains (map process-urls union)
         json (-> domains
                  frequencies
                  make-json
