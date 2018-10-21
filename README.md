@@ -23,7 +23,7 @@ To get results use follow command:
 
 ## License
 
-Copyright © 2018 FIXME
+Copyright © 2018 Aleksei Petrov
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
