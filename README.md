@@ -11,7 +11,11 @@ The project has a several main points:
 
 After downloading the repository, the application can be launched as follows:
 
-```lein run```
+```bash
+> lein deps
+...
+> lein run
+```
 
 Also, the tests can be lounched as follows:
 
