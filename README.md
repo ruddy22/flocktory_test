@@ -31,6 +31,8 @@ Needs a Java 10+ and JDK 10+
 
 ## Dependencies
 
+Dependencies list:
+
 - `http-kit "2.2.0"` - lightweight server
 - `compojure "1.6.0"` - router
 - `com.climate/claypoole` - threadpool tools
