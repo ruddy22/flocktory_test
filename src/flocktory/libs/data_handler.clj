@@ -7,19 +7,32 @@
             ))
 
 (defn make-url
-  "make url for request"
-  [query]
-  (str "https://www.bing.com/search?q=" query "&format=rss&count=10"))
+  "
+  string -> string
+
+  Takes a `word` and makes url-string for request rss feed.
+  "
+  [word]
+  (str "https://www.bing.com/search?q=" word "&format=rss&count=10"))
 
 (defn query-string->words
-  "clean and convert query-string to list of words"
+  "
+  string -> (list string)
+
+  Cleans `query-string` and convert to list of words.
+  "
   [query-string]
   (-> query-string
       (s/replace #"query=" "")
       (s/split #"&")))
 
 (defn domains->json
-  "perform frequencies calculation and convert result to pretty json"
+  "
+  (list string) -> (JSON string)
+
+  Takes a list of `donains`, performs frequencies calculation
+  and convert the result to pretty json.
+  "
   [domains]
   (-> domains
       frequencies
@@ -27,10 +40,14 @@
       prettify))
 
 (defn process-urls
-  "get sld"
-  [url-str]
+  "
+  string -> string || exception
+
+  Takes a `url` string and convert it to sld name.
+  "
+  [url]
   (try
-    (let [host (-> url-str
+    (let [host (-> url
                    as-url
                    (.getHost))
           sld (take 2 (reverse (s/split host #"\.")))]
@@ -43,7 +60,17 @@
       (throw (Exception. (.getMessage e))))))
 
 (defn process
-  "subprocess for each word"
+  "
+  fn -> string -> (list string) || exception
+
+  Word processor
+
+  Takes a `get-feed` fn (receiver and parser of rss) and a `word` string
+  makes url-string from params, sends it to the remote server,
+  receive and parse incoming data.
+
+  After that convert data to list of domains.
+  "
   [get-feed word]
   (try
     (let [entries (-> word
@@ -56,7 +83,14 @@
       (throw (Exception. (.getMessage e))))))
 
 (defn data-processing
-  "words processing"
+  "
+  string -> instance -> fn -> (json string)
+
+  Major processing function.
+
+  Takes a `query-string`, `pool`(thread pool executor), `get-feed`
+  and uses them to receive and process data from a external service
+  "
   [query-string pool get-feed]
   (let [words (query-string->words query-string)
         union (apply set/union
@@ -67,6 +101,6 @@
     ))
 
 (defn handle-data
-  "handle data"
+  "wrapper for data-processing"
   [query-string pool get-feed]
   (data-processing query-string pool get-feed))
