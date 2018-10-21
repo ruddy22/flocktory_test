@@ -33,12 +33,12 @@ Needs a Java 10+ and JDK 10+
 
 Dependencies list:
 
-- `http-kit "2.2.0"` - lightweight server
-- `compojure "1.6.0"` - router
-- `com.climate/claypoole` - threadpool tools
-- `org.clojars.scsibug/feedparser-clj "0.4.0"` - rss feed parser
-- `org.clojure/data.json "0.2.6"` - json tools
-- `hiccup "1.0.5"` - html tools
+- `http-kit "2.2.0"` - lightweight server ([link](https://github.com/http-kit/http-kit))
+- `compojure "1.6.0"` - router ([link](https://github.com/weavejester/compojure))
+- `com.climate/claypoole` - threadpool tools ([link](https://github.com/TheClimateCorporation/claypoole))
+- `org.clojars.scsibug/feedparser-clj "0.4.0"` - rss feed parser ([link](https://github.com/scsibug/feedparser-clj))
+- `org.clojure/data.json "0.2.6"` - json tools ([link](https://github.com/clojure/data.json))
+- `hiccup "1.0.5"` - html tools ([link](https://github.com/weavejester/hiccup))
 
 ## License
 
