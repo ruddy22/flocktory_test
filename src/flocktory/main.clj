@@ -5,6 +5,5 @@
 (defn -main
   "Application entry point"
   [& args]
-  (serv/start-server)
-  )
+  (serv/start-server))
 

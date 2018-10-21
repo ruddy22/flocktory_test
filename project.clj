@@ -13,4 +13,5 @@
                  [com.climate/claypoole "1.1.4"]
                  [org.clojars.scsibug/feedparser-clj "0.4.0" :exlusions [org.clojure/clojure]]
                  [org.clojure/data.json "0.2.6"]
+                 [hiccup "1.0.5"]
                  ])

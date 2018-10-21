@@ -28,3 +28,8 @@
    (let [serv (run-server #'app {:port port})]
      (reset! server serv)
      (println (str "Server have been started on " port)))))
+
+(comment
+  (start-server)
+  (stop-server)
+  )
