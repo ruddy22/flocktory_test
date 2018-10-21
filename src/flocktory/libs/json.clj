@@ -4,7 +4,12 @@
             ))
 
 (defn prettify
-  "indenting json on 1st level"
+  "
+  (JSON string) -> (JSON string)
+
+  Makes json data much prettier.
+  Indents each string in json data.
+  "
   [json-data]
   (-> json-data
       (s/replace #"\{" "{\n\t")
@@ -13,7 +18,11 @@
       ))
 
 (defn make-json
-  "convert clj data to json"
+  "
+  (hash-map) -> (json string)
+
+  Converts data to json.
+  "
   [data]
   (json/write-str data))
 
