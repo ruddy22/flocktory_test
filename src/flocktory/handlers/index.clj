@@ -15,7 +15,7 @@
                   [:div "Test task for the Flocktory"]
                   [:br]
                   [:div "Main points:"]
-                  [:div "1. Send request to Bing Search Engine"]
+                  [:div "1. Send request to Bing Search Service"]
                   [:div "2. Process the response"]
                   [:div "3. Receive statistics that based on the response"]
                   [:h3 "Wanna try?"]
