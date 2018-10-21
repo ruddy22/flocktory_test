@@ -23,7 +23,20 @@ Also, the tests can be lounched as follows:
 
 To get results use follow command:
 
-```curl http://localhost:8080/search\?query\=haskell\&query\=scala\&query\=clojure\&query\=lisp\&query\=javascript```
+```curl http://localhost:8080/search\?query\=haskell\&query\=scala\&query\=clojure\&query\=lisp```
+
+## Requirements
+
+Needs a Java 10+ and JDK 10+
+
+## Dependencies
+
+- `http-kit "2.2.0"` - lightweight server
+- `compojure "1.6.0"` - router
+- `com.climate/claypoole` - threadpool tools
+- `org.clojars.scsibug/feedparser-clj "0.4.0"` - rss feed parser
+- `org.clojure/data.json "0.2.6"` - json tools
+- `hiccup "1.0.5"` - html tools
 
 ## License
 
