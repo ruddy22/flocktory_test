@@ -1,5 +1,6 @@
 (ns flocktory.server
   (:require [org.httpkit.server :as http-serv]
+            [ring.middleware.params :as middleware]
             [compojure.core :as cc]
             [compojure.route :as route]
             [flocktory.libs.threadpool :as threadpool]
@@ -10,11 +11,15 @@
 
 (def default-pool-size 10)
 
-(cc/defroutes app
-  (cc/GET "/" [req] index-handler)
-  (cc/GET "/search" [req] search-handler)
+(cc/defroutes routes
+  (cc/GET "/" req index-handler)
+  (cc/GET "/search" req search-handler)
   (route/not-found "Route not found")
   (route/resources "/"))
+
+(def app
+  (-> routes
+      middleware/wrap-params))
 
 (defn- stop-server
   "stop running server"

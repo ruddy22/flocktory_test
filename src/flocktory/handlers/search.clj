@@ -14,7 +14,7 @@
 (defn handle-error
   "negative response"
   [error]
-  (let [error-str (.toString error)
+  (let [error-str (.getMessage error)
         json (-> {:error error-str}
                  json/make-json
                  json/prettify)]
@@ -25,10 +25,12 @@
 (defn search-handler
   "search route handler"
   [req]
-  (let [{:keys [query-string]} req
+  (let [{:keys [query-params]} req
         pool (threadpool/get-or-create-threadpool 10)]
-    (try
-      (-> query-string
-          (dh/data-handler pool rss/get-rss)
-          make-pos-response)
-      (catch Exception e (handle-error e)))))
+    (if-let [words (get query-params "query")]
+      (try
+        (-> words
+            (dh/data-handler pool rss/get-rss)
+            make-pos-response)
+        (catch Exception e (handle-error e)))
+      (handle-error (Exception. "Wrong params")))))

@@ -91,9 +91,8 @@
   Takes a `query-string`, `pool`(thread pool executor), `get-feed`
   and uses them to receive and process data from a external service
   "
-  [query-string pool get-feed]
-  (let [words (query-string->words query-string)
-        union (apply set/union
+  [words pool get-feed]
+  (let [union (apply set/union
                      (tp/do-in-thread pool (partial process get-feed) words))
         domains (map process-urls union)
         json (domains->json domains)]
