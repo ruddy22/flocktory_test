@@ -4,12 +4,11 @@
             [compojure.core :as cc]
             [compojure.route :as route]
             [flocktory.libs.threadpool :as threadpool]
+            [flocktory.defaults :as default]
             [flocktory.handlers.index :refer (index-handler)]
             [flocktory.handlers.search :refer (search-handler)]))
 
 (defonce server (atom nil))
-
-(def default-pool-size 10)
 
 (cc/defroutes routes
   (cc/GET "/" req index-handler)
@@ -35,7 +34,7 @@
   ([] (start-server 8080))
   ([port]
    (let [serv (http-serv/run-server app {:port port})
-         _ (threadpool/get-or-create-threadpool default-pool-size)] ;; create threadpool in the module
+         _ (threadpool/get-or-create-threadpool default/pool-size)] ;; create threadpool in the module
      (reset! server serv)
      (println (str "Server have been started on " port)))))
 

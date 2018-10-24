@@ -2,6 +2,7 @@
   (:require [flocktory.libs.threadpool :as threadpool]
             [flocktory.libs.data-handler :as dh]
             [flocktory.libs.rss :as rss]
+            [flocktory.defaults :as default]
             [flocktory.libs.json :as json]))
 
 (defn make-pos-response
@@ -26,10 +27,12 @@
   "search route handler"
   [req]
   (let [{:keys [query-params]} req
-        pool (threadpool/get-or-create-threadpool 10)]
-    (if-let [words (get query-params "query")]
+        pool (threadpool/get-or-create-threadpool default/pool-size)]
+    (if-let [params (get query-params default/query-param)]
       (try
-        (-> words
+        (-> (if (vector? params)
+              params
+              (vector params))
             (dh/data-handler pool rss/get-rss)
             make-pos-response)
         (catch Exception e (handle-error e)))
