@@ -1,17 +1,19 @@
 (ns flocktory.libs.threadpool
   (:require [com.climate.claypoole :as cp]))
 
-(def default-pool-size 10)
+(def pool (atom nil))
 
-(defn make-threadpool
+(defn get-or-create-threadpool
   "
-  int? -> instance
+  int -> instance
 
-  Takes `size` (if specified) and creates a thread pool executor
-  with `size` processes.
+  Returns thread pool executor instance if it exists or
+  takes `size` and creates it with `size` processes.
   "
-  ([] (make-threadpool default-pool-size))
-  ([size] (cp/threadpool size)))
+  [size]
+  (if-let [pl @pool]
+    pl
+    (reset! pool (cp/threadpool size))))
 
 (defn destroy-threadpool
   "

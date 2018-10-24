@@ -1,7 +1,6 @@
 (ns flocktory.libs.json
   (:require [clojure.data.json :as json]
-            [clojure.string :as s]
-            ))
+            [clojure.string :as s]))
 
 (defn prettify
   "

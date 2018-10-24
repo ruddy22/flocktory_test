@@ -1,10 +1,10 @@
 (ns flocktory.libs.data-handler
   (:require [clojure.set :as set]
             [clojure.string :as s]
-            [clojure.java.io :refer (as-url)]
+            [clojure.java.io :as io]
             [flocktory.libs.threadpool :as tp]
-            [flocktory.libs.json :refer (make-json prettify)]
-            ))
+            [flocktory.libs.json :as json])
+  (:import (java.util UUID)))
 
 (defn make-url
   "
@@ -36,8 +36,8 @@
   [domains]
   (-> domains
       frequencies
-      make-json
-      prettify))
+      json/make-json
+      json/prettify))
 
 (defn process-urls
   "
@@ -48,7 +48,7 @@
   [url]
   (try
     (let [host (-> url
-                   as-url
+                   io/as-url
                    (.getHost))
           sld (take 2 (reverse (s/split host #"\.")))]
       (s/join "." (reverse sld)))
@@ -61,7 +61,7 @@
 
 (defn process
   "
-  fn -> string -> (list string) || exception
+  fn -> string -> (vec string) || exception
 
   Word processor
 
@@ -71,14 +71,14 @@
 
   After that convert data to list of domains.
   "
-  [get-feed word]
+  [get-feed pool word]
   (try
     (let [entries (-> word
                       make-url
                       get-feed
                       :entries)
           links (map :link entries)]
-      links)
+      (vec links))
     (catch Exception e
       (throw (Exception. (.getMessage e))))))
 
@@ -94,7 +94,7 @@
   [query-string pool get-feed]
   (let [words (query-string->words query-string)
         union (apply set/union
-                     (tp/do-in-thread pool (partial process get-feed) words))
+                     (tp/do-in-thread pool (partial process get-feed pool) words))
         domains (map process-urls union)
         json (domains->json domains)]
     json

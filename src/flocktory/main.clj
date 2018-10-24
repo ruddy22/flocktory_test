@@ -1,9 +1,9 @@
 (ns flocktory.main
-  (:require [flocktory.server :as serv])
+  (:require [flocktory.server :as server])
   (:gen-class))
 
 (defn -main
   "Application entry point"
   [& args]
-  (serv/start-server))
+  (server/start-server))
 

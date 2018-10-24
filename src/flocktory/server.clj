@@ -1,16 +1,18 @@
 (ns flocktory.server
-  (:require [org.httpkit.server :refer (run-server)]
-            [compojure.core :refer :all]
+  (:require [org.httpkit.server :as http-serv]
+            [compojure.core :as cc]
             [compojure.route :as route]
+            [flocktory.libs.threadpool :as threadpool]
             [flocktory.handlers.index :refer (index-handler)]
-            [flocktory.handlers.search :refer (search-handler)]
-            ))
+            [flocktory.handlers.search :refer (search-handler)]))
 
 (defonce server (atom nil))
 
-(defroutes app
-  (GET "/" [req] index-handler)
-  (GET "/search" [req] search-handler)
+(def default-pool-size 10)
+
+(cc/defroutes app
+  (cc/GET "/" [req] index-handler)
+  (cc/GET "/search" [req] search-handler)
   (route/not-found "Route not found")
   (route/resources "/"))
 
@@ -19,13 +21,16 @@
   []
   (when-not (nil? @server)
     (@server :timeout 100)
-    (reset! server nil)))
+    (reset! server nil)
+    (let [pool threadpool/get-or-create-threadpool]
+      (threadpool/destroy-threadpool pool))))
 
 (defn start-server
   "start new server instance"
   ([] (start-server 8080))
   ([port]
-   (let [serv (run-server #'app {:port port})]
+   (let [serv (http-serv/run-server app {:port port})
+         _ (threadpool/get-or-create-threadpool default-pool-size)] ;; create threadpool in the module
      (reset! server serv)
      (println (str "Server have been started on " port)))))
 
