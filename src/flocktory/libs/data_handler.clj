@@ -71,7 +71,7 @@
 
   After that convert data to list of domains.
   "
-  [get-feed pool word]
+  [get-feed word]
   (try
     (let [entries (-> word
                       make-url
@@ -82,7 +82,7 @@
     (catch Exception e
       (throw (Exception. (.getMessage e))))))
 
-(defn data-processing
+(defn data-handler
   "
   string -> instance -> fn -> (json string)
 
@@ -94,13 +94,7 @@
   [query-string pool get-feed]
   (let [words (query-string->words query-string)
         union (apply set/union
-                     (tp/do-in-thread pool (partial process get-feed pool) words))
+                     (tp/do-in-thread pool (partial process get-feed) words))
         domains (map process-urls union)
         json (domains->json domains)]
-    json
-    ))
-
-(defn handle-data
-  "wrapper for data-processing"
-  [query-string pool get-feed]
-  (data-processing query-string pool get-feed))
+    json))

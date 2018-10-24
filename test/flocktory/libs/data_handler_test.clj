@@ -19,7 +19,7 @@
 
 (deftest process-urls-test
   (testing "get sld"
-    (is (= '("wiki.com" "wiki.com" "wiki.com")
+    (is (= ["wiki.com" "wiki.com" "wiki.com"]
            (map dh/process-urls (list "http://en.wiki.com" "https://es.us.wiki.com" "http://ru-ru.wiki.com")))))
   (testing "get exceptions"
     (testing "Null Pointer Exception"
@@ -43,5 +43,5 @@
 
 (deftest process-test
   (testing "get list of links"
-    (is (= '("1" "2" "3")
+    (is (= ["1" "2" "3"]
            (dh/process fake-get-feed "someword")))))

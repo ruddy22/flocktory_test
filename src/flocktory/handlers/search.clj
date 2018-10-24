@@ -29,6 +29,6 @@
         pool (threadpool/get-or-create-threadpool 10)]
     (try
       (-> query-string
-          (dh/handle-data pool rss/get-rss)
+          (dh/data-handler pool rss/get-rss)
           make-pos-response)
       (catch Exception e (handle-error e)))))
