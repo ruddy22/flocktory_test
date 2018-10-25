@@ -5,35 +5,40 @@
             [flocktory.defaults :as default]
             [flocktory.libs.json :as json]))
 
-(defn make-pos-response
-  "positive response"
-  [data]
-  {:status 200
+(defn make-response
+  [[status-code data]]
+  {:status status-code
    :headers {"Content-Type" "application/json; charset=utf-8"}
-   :body data})
+   :body (-> (case status-code
+               500 {:error data}
+               200 data)
+             json/make-json
+             json/prettify)})
 
-(defn handle-error
-  "negative response"
-  [error]
-  (let [error-str (.getMessage error)
-        json (-> {:error error-str}
-                 json/make-json
-                 json/prettify)]
-    {:status 500
-     :headers {"Content-Type" "application/json; charset=utf-8"}
-     :body json}))
+(defn make-response-type
+  [status-code data]
+  (vector status-code data))
+
+(def make-positive-response
+  (partial make-response-type 200))
+
+(def make-negative-response
+  (partial make-response-type 500))
+
+(defn do-stuff
+  [incoming-params pool]
+  (if-let [params (get incoming-params default/query-selector)]
+    (try
+      (-> (if (vector? params) params (vector params))
+          (dh/data-handler pool rss/get-rss)
+          (make-positive-response))
+      (catch Exception e (make-negative-response (.getMessage e))))
+    (make-negative-response "Wrong params")))
 
 (defn search-handler
   "search route handler"
   [req]
   (let [{:keys [query-params]} req
-        pool (threadpool/get-or-create-threadpool default/pool-size)]
-    (if-let [params (get query-params default/query-param)]
-      (try
-        (-> (if (vector? params)
-              params
-              (vector params))
-            (dh/data-handler pool rss/get-rss)
-            make-pos-response)
-        (catch Exception e (handle-error e)))
-      (handle-error (Exception. "Wrong params")))))
+        pool (threadpool/get-or-create-threadpool default/pool-size)
+        res (do-stuff query-params pool)]
+    (make-response res)))

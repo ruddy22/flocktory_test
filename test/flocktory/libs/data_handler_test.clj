@@ -7,16 +7,6 @@
     (is (= "https://www.bing.com/search?q=clojure&format=rss&count=10"
            (dh/make-url "clojure")))))
 
-(deftest query-string->words-test
-  (testing "clean and convert query-string to list of strings"
-    (is (= ["clojure" "haskell"]
-           (dh/query-string->words "query=clojure&query=haskell")))))
-
-(deftest domains->json-test
-  (testing "perform frequencies calculation and convert result to pretty json"
-    (is (= "{\n\t\"clojure.org\":2\n}\n"
-           (dh/domains->json '("clojure.org" "clojure.org"))))))
-
 (deftest process-urls-test
   (testing "get sld"
     (is (= ["wiki.com" "wiki.com" "wiki.com"]

@@ -2,9 +2,7 @@
   (:require [clojure.set :as set]
             [clojure.string :as s]
             [clojure.java.io :as io]
-            [flocktory.libs.threadpool :as tp]
-            [flocktory.libs.json :as json])
-  (:import (java.util UUID)))
+            [flocktory.libs.threadpool :as tp]))
 
 (defn make-url
   "
@@ -14,30 +12,6 @@
   "
   [word]
   (str "https://www.bing.com/search?q=" word "&format=rss&count=10"))
-
-(defn query-string->words
-  "
-  string -> (list string)
-
-  Cleans `query-string` and convert to list of words.
-  "
-  [query-string]
-  (-> query-string
-      (s/replace #"query=" "")
-      (s/split #"&")))
-
-(defn domains->json
-  "
-  (list string) -> (JSON string)
-
-  Takes a list of `donains`, performs frequencies calculation
-  and convert the result to pretty json.
-  "
-  [domains]
-  (-> domains
-      frequencies
-      json/make-json
-      json/prettify))
 
 (defn process-urls
   "
@@ -84,7 +58,7 @@
 
 (defn data-handler
   "
-  string -> instance -> fn -> (json string)
+  string -> instance -> fn -> (hash-map)
 
   Major processing function.
 
@@ -94,6 +68,6 @@
   [words pool get-feed]
   (let [union (apply set/union
                      (tp/do-in-thread pool (partial process get-feed) words))
-        domains (map process-urls union)
-        json (domains->json domains)]
-    json))
+        domains (-> (map process-urls union)
+                    frequencies)]
+    domains))
