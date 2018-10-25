@@ -12,8 +12,7 @@
    :body (-> (case status-code
                500 {:error data}
                200 data)
-             json/make-json
-             json/prettify)})
+             json/make-json)})
 
 (defn make-response-type
   [status-code data]

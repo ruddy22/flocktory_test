@@ -12,7 +12,7 @@
                  ;; use `claypoole` because -> https://www.youtube.com/watch?v=BzKjIk0vgzE
                  [com.climate/claypoole "1.1.4"]
                  [org.clojars.scsibug/feedparser-clj "0.4.0" :exlusions [org.clojure/clojure]]
-                 [org.clojure/data.json "0.2.6"]
+                 [cheshire "5.8.1"]
                  [hiccup "1.0.5"]
                  [javax.servlet/servlet-api "2.5"]
                  [ring/ring-core "1.7.0"]])
