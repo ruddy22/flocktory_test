@@ -21,8 +21,9 @@
 
   Takes a `pool` and destroy it.
   "
-  [pool]
-  (cp/shutdown pool))
+  [pl]
+  (cp/shutdown pl)
+  (reset! pool nil))
 
 (defn do-in-thread
   "
